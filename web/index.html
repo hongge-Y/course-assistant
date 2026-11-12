@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>课程选课智能助手</title>
+  <style>
+    :root{color-scheme:light;--ink:#18312e;--muted:#687c78;--accent:#196c5a;--pale:#e7f3ee;--line:#dce7e2;--paper:#fff;--bg:#f3f7f4;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}button,textarea,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}
+    .shell{min-height:100vh;display:grid;grid-template-columns:260px 1fr}.sidebar{padding:36px 22px;background:#153e36;color:#ecf8f2;display:flex;flex-direction:column;gap:28px}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.03em}.brand-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#9edcc1;color:#123c32;font-size:20px}
+    .side-label{font-size:12px;letter-spacing:.1em;color:#a7c5b7;margin:0 0 10px}.sidebar h2{font-size:18px;margin:0 0 9px}.sidebar p{font-size:13px;line-height:1.8;color:#bcd4c8;margin:0}.side-note{margin-top:auto!important;border-top:1px solid #43685c;padding-top:18px}
+    .main{height:100vh;display:flex;flex-direction:column;min-width:0}.topbar{min-height:79px;padding:15px 38px;background:rgba(255,255,255,.8);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .topbar h1{font-size:18px;margin:0 0 4px}.topbar p{font-size:12px;color:var(--muted);margin:0}.identity{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted)}select{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px;color:var(--ink)}
+    .content{flex:1;min-height:0;overflow-y:auto;scroll-behavior:smooth}.chat{max-width:900px;margin:0 auto;padding:34px 30px 20px}.intro{margin-bottom:24px}.eyebrow{font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.1em}.intro h2{font-size:25px;letter-spacing:.02em;margin:10px 0}.intro p{font-size:14px;color:var(--muted);line-height:1.7;margin:0}.chips{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0 28px}.chip{border:1px solid #cbded5;border-radius:99px;color:#315c50;background:#fff;padding:9px 14px;font-size:13px}.chip:hover{background:var(--pale)}
+    .messages{display:flex;flex-direction:column;gap:18px}.message{display:flex;gap:10px;align-items:flex-start}.message.student{flex-direction:row-reverse}.avatar{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:11px;background:#dcefe6;color:var(--accent);font-size:13px;font-weight:700}.student .avatar{background:#dfe9f6;color:#456b96}.message-body{max-width:85%;min-width:0}.role{font-size:12px;font-weight:600;color:var(--muted);margin:0 0 5px 3px}.student .role{text-align:right;margin-right:3px}.bubble{background:var(--paper);border:1px solid var(--line);border-radius:5px 16px 16px;padding:13px 16px;font-size:14px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere}.student .bubble{background:#dcefe6;border-color:#dcefe6;border-radius:16px 5px 16px 16px}.bubble.error{color:#9e3d37;background:#fff4f2;border-color:#f2d2ce}
+    .bottom{background:linear-gradient(0deg,#f3f7f4 75%,rgba(243,247,244,0));padding:10px 30px 22px}.bottom-inner{max-width:840px;margin:auto}.confirm{display:none;align-items:center;gap:9px;margin-bottom:10px;padding:11px 14px;background:#fff7e8;border:1px solid #f0dfb8;border-radius:12px;font-size:13px}.confirm.visible{display:flex}.confirm span{flex:1}.confirm button{border:0;border-radius:8px;padding:7px 13px}.yes{background:var(--accent);color:#fff}.no{background:#f1e5d0;color:#5e5039}
+    .composer{background:white;border:1px solid #c9ddd3;border-radius:16px;padding:13px;box-shadow:0 5px 20px #284e380d;display:flex;align-items:flex-end;gap:12px}.composer:focus-within{border-color:#70aa92}.composer textarea{flex:1;min-width:0;border:0;outline:0;resize:vertical;min-height:54px;max-height:160px;padding:4px;color:var(--ink);line-height:1.5;background:transparent}.send{border:0;border-radius:10px;background:var(--accent);color:#fff;padding:11px 21px;font-weight:600}.foot{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px;margin:9px 4px 0}.reset{background:none;border:0;padding:0;color:var(--accent)}.status{min-height:18px;color:#a45b36}
+    @media(max-width:720px){.shell{display:block}.sidebar{display:none}.topbar{padding:14px 18px}.topbar h1{font-size:16px}.identity label{display:none}.chat{padding:24px 18px}.bottom{padding:8px 14px 15px}.message-body{max-width:90%}.intro h2{font-size:21px}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-icon">✦</span><span>校园课程助手</span></div>
+    <div><p class="side-label">COURSE ASSISTANT</p><h2>找到适合你的课程</h2><p>了解课程内容、上课教室和剩余名额。每门课最多 20 人，每人最多选 2 门。</p></div>
+    <p class="side-note">课程资料与选课记录来自本地项目。确认后，选课结果会保存到项目数据库。</p>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div><h1>课程选课智能助手</h1><p>课程咨询 · 选课与退课 · 教室查询</p></div>
+      <div class="identity"><label for="student">当前学生</label><select id="student" aria-label="当前学生"><option>加载中…</option></select></div>
+    </header>
+    <div class="content" id="content">
+      <div class="chat">
+        <section class="intro"><div class="eyebrow">你好，欢迎使用</div><h2>今天想了解哪门课程？</h2><p>告诉我你的兴趣，也可以查询教室、比较课程、选课或退课。C004 默认设置为满员，实际名额以实时查询为准。</p></section>
+        <div class="chips" aria-label="快捷问题">
+          <button class="chip" data-question="列出所有课程">有哪些课程？</button>
+          <button class="chip" data-question="C002 课程教什么？">机器学习学什么？</button>
+          <button class="chip" data-question="选择 C004">尝试选择 C004</button>
+          <button class="chip" data-question="我的选课">查看我的选课</button>
+        </div>
+        <div class="messages" id="messages" role="log" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="bottom"><div class="bottom-inner">
+      <div class="confirm" id="confirmation"><span id="confirmation-text">请确认本次操作</span><button class="no" id="cancel">取消</button><button class="yes" id="confirm">确认</button></div>
+      <div class="composer"><textarea id="input" aria-label="输入消息" placeholder="输入课程问题或选课请求，完成后点击发送"></textarea><button class="send" id="send">发送</button></div>
+      <div class="foot"><label><input type="checkbox" id="use-web"> Tavily 联网补充（会发送当前问题）</label><span class="status" id="status" aria-live="polite">正在连接服务…</span><button class="reset" id="reset">开始新对话</button></div>
+    </div></div>
+  </main>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const input = $('input'), messages = $('messages'), content = $('content');
+  const send = $('send'), student = $('student'), status = $('status');
+  const confirmation = $('confirmation'), confirm = $('confirm'), cancel = $('cancel');
+  let sessionId = null, busy = false, waiting = false, composing = false, ready = false;
+
+  function addMessage(role, text, isError = false) {
+    const row = document.createElement('div'); row.className = 'message ' + (role === '学生' ? 'student' : 'assistant');
+    const avatar = document.createElement('div'); avatar.className = 'avatar'; avatar.textContent = role === '学生' ? '我' : '✦';
+    const body = document.createElement('div'); body.className = 'message-body';
+    const label = document.createElement('div'); label.className = 'role'; label.textContent = role;
+    const bubble = document.createElement('div'); bubble.className = 'bubble' + (isError ? ' error' : '');
+    // 只把 http(s) 网址变成链接，其他内容仍作为文本，避免执行搜索结果中的 HTML。
+    String(text).split(/(https?:\/\/[^\s<>"'（）【】]+)/g).forEach(part => {
+      if (/^https?:\/\//.test(part)) {
+        const link = document.createElement('a'); link.href = part; link.textContent = part;
+        link.target = '_blank'; link.rel = 'noopener noreferrer'; bubble.append(link);
+      } else { bubble.append(document.createTextNode(part)); }
+    });
+    body.append(label, bubble); row.append(avatar, body); messages.append(row);
+    content.scrollTop = content.scrollHeight;
+  }
+  function setBusy(value) {
+    busy = value; send.disabled = value || !ready; student.disabled = value || !!sessionId;
+    document.querySelectorAll('.chip').forEach(button => button.disabled = value || !ready);
+    confirm.disabled = cancel.disabled = value; $('reset').disabled = value;
+    status.textContent = value ? '正在思考，请稍候…' : '';
+  }
+  async function request(path, options = {}) {
+    const response = await fetch(path, options);
+    let data; try { data = await response.json(); } catch { throw new Error('服务返回了无法识别的内容。'); }
+    if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : '请求失败，请重试。');
+    return data;
+  }
+  const post = (path, data) => request(path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  async function dispatch(text) {
+    if (busy || !ready) return;
+    if (composing) { status.textContent = '请先选定输入法候选字，再点击发送。'; return; }
+    text = text.trim(); if (!text) { input.focus(); return; }
+    if (waiting && text !== '确认' && text !== '取消') { status.textContent = '请先确认或取消本次选课。'; return; }
+    setBusy(true);
+    try {
+      if (!sessionId) {
+        const session = await post('/api/sessions', {user_id:student.value});
+        sessionId = session.session_id; student.disabled = true;
+      }
+      addMessage('学生', text);
+      const result = await post('/api/chat', {session_id:sessionId, message:text, use_web:$('use-web').checked});
+      addMessage('助手', result.reply);
+      waiting = result.waiting_for_confirmation;
+      $('confirmation-text').textContent = result.pending_action === 'drop' ? '请确认是否退掉这门课程' : '请确认是否选择这门课程';
+      confirm.textContent = result.pending_action === 'drop' ? '确认退课' : '确认选课';
+      confirmation.classList.toggle('visible', waiting);
+    } catch (error) {
+      addMessage('助手', error.message || '连接失败，请检查后端服务。', true);
+    } finally { setBusy(false); }
+  }
+  input.addEventListener('compositionstart', () => { composing = true; });
+  input.addEventListener('compositionend', () => { composing = false; });
+  // 不监听回车键发送；中文输入法可使用回车选词，不会意外提交。
+  send.addEventListener('click', () => {
+    if (busy || !input.value.trim()) return;
+    if (composing) { status.textContent = '请先选定输入法候选字，再点击发送。'; return; }
+    if (waiting && !['确认', '取消'].includes(input.value.trim())) {
+      status.textContent = '请先确认或取消本次选课。'; return;
+    }
+    const text = input.value; input.value = ''; dispatch(text);
+  });
+  confirm.addEventListener('click', () => dispatch('确认'));
+  cancel.addEventListener('click', () => dispatch('取消'));
+  document.querySelectorAll('.chip').forEach(button => button.addEventListener('click', () => dispatch(button.dataset.question)));
+  $('reset').addEventListener('click', () => {
+    if (busy) return;
+    sessionId = null; waiting = false; confirmation.classList.remove('visible');
+    messages.replaceChildren(); student.disabled = false; input.value = ''; status.textContent = ''; input.focus();
+  });
+  async function start() {
+    try {
+      const data = await request('/api/students');
+      student.replaceChildren();
+      data.students.forEach(person => {
+        const option = document.createElement('option'); option.value = person.user_id;
+        option.textContent = `${person.user_id} ${person.name}`; student.append(option);
+      });
+      if (!data.students.length) throw new Error('数据库中没有可用的学生。');
+      ready = true; setBusy(false);
+      addMessage('助手', '你好！想了解哪门课程？');
+    } catch (error) { status.textContent = error.message || '无法连接后端，请检查服务是否启动。'; }
+  }
+  setBusy(false); start();
+})();
+</script>
+</body>
+</html>
