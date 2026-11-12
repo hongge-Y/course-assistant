@@ -1,0 +1,22 @@
+.env
+.venv/
+venv/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+
+# 测试与脚本产物
+reports/
+data/embedding_cache.json
+
+# 系统杂项
+.DS_Store
+Thumbs.db
+
+# 运行时日志与缓存
+*.log
+data/*.log
+.pytest_cache/
+
+# 本地过程工具（实验报告生成等），不随仓库发布
+scripts/_internal/
